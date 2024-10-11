@@ -1,0 +1,510 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Vientos Colombia</title>
+    <link rel="icon" type="image/png" href="./icon.png" />
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.28/esri/themes/dark/main.css"
+    />
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://js.arcgis.com/4.28/"></script>
+    <script
+      type="module"
+      src="https://js.arcgis.com/calcite-components/1.9.2/calcite.esm.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://js.arcgis.com/calcite-components/1.9.2/calcite.css"
+    />
+
+    <style>
+      body{
+        display: flex;
+      }
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        transition: width 1s ease;
+      }
+
+      #info{
+        width: 30%;
+        display: none;
+      }
+
+      body{
+        background-color: #2b2b2b;
+      }
+
+      #controls {
+        width: 300px;
+        max-height: 90vh;
+        overflow: auto;
+      }
+    </style>
+
+    <script>
+      require([
+        "esri/config",
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/Legend",
+        "esri/widgets/Expand",
+        "esri/layers/ImageryLayer",
+        "esri/layers/FeatureLayer",
+        "esri/symbols/SimpleFillSymbol",
+        "esri/renderers/SimpleRenderer",
+        "esri/widgets/Search",
+        "esri/widgets/Home",
+        "esri/core/reactiveUtils",
+      ], function (
+        esriConfig,
+        Map,
+        MapView,
+        Legend,
+        Expand,
+        ImageryLayer,
+        FeatureLayer,
+        SimpleFillSymbol,
+        SimpleRenderer,
+        Search,
+        Home,
+        reactiveUtils
+      ) {
+        esriConfig.apiKey =
+          "AAPK542d70b9ee284701b2ff62918a1b6c4fbfS1Z5hbWY3JUMdCC3W52kT_-vBcaomFbURZAUvCcoXmccrqv_kNTmXzc2UZkOmi";
+        const popupDepartamentos = {
+          title: "Información departamento",
+          content: [
+            {
+              type: "fields",
+              fieldInfos: [
+                {
+                  fieldName: "NAME",
+                  label: "Nombre",
+                },
+                {
+                  fieldName: "Area",
+                  label: "Área (KM<sup>2</sup>)",
+                  format: {
+                    digitSeparator: true, // Uses a comma separator in numbers >999
+                    places: 2, // Sets the number of decimal places to 0 and rounds up
+                  },
+                },
+              ],
+            },
+          ],
+        };
+
+        const popupVientos = {
+          title: "Información viento",
+          content: [
+            {
+              type: "fields",
+              fieldInfos: [
+                {
+                  fieldName: "Raster.Magnitude",
+                  label: "Velocidad (m/s)",
+                  format: {
+                    digitSeparator: true, // Uses a comma separator in numbers >999
+                    places: 2, // Sets the number of decimal places to 0 and rounds up
+                  },
+                },
+                {
+                  fieldName: "Raster.Direction",
+                  label: "Dirección (°)",
+                  format: {
+                    digitSeparator: true, // Uses a comma separator in numbers >999
+                    places: 2, // Sets the number of decimal places to 0 and rounds up
+                  },
+                },
+              ],
+            },
+          ],
+        };
+        const departamentosLayer = new FeatureLayer({
+          url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/COL_Boundaries_2021/FeatureServer/1",
+          renderer: new SimpleRenderer({
+            symbol: new SimpleFillSymbol({
+              color: "rgba(249, 249, 199, .1)",
+              outline: {
+                color: "white",
+                width: 1,
+              },
+            }),
+          }),
+          opacity: 1,
+          outFields: ["NAME"],
+          //popupTemplate: popupDepartamentos
+        });
+        // console.log(departamentosLayer);
+        const layer = new ImageryLayer({
+          url: "https://geoapps.esri.co/image/rest/services/vientos2006/ImageServer",
+          title: "Vientos Colombia",
+          renderer: {
+            type: "flow", // autocasts to new FlowRenderer
+            trailWidth: "2px",
+            // color: [50, 120, 240, 1],
+            density: 1,
+            visualVariables: [
+              {
+                type: "color",
+                field: "Velocidad del viento (m/s)",
+                stops: [
+                  { color: [40, 146, 199, 1], value: 0 },
+                  { color: [160, 194, 155, 1], value: 4 },
+                  { color: [218, 230, 119, 1], value: 8 },
+                ],
+              },
+            ],
+            outFields: ["Raster.Magnitude", "Raster.Direction"],
+          },
+          effect: "bloom(1.5, 0.5px, 0)",
+          opacity: 0.8,
+          popupTemplate: popupVientos,
+        });
+
+        const map = new Map({
+          basemap: "dark-gray-vector",
+          layers: [departamentosLayer],
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 5,
+          center: [-73, 4],
+        });
+
+        view.whenLayerView(layer).then((layerView) => {
+          layerView.highlightOptions = {
+            color: "#ffe700",
+            haloOpacity: 0,
+            fillOpacity: 0,
+          };
+        });
+
+        let homeWidget = new Home({
+          view: view,
+        });
+        view.ui.add(homeWidget, {
+          position: "top-left",
+        });
+
+        const searchWidget = new Search({
+          view: view,
+        });
+        view.ui.add(searchWidget, {
+          position: "top-left",
+        });
+
+        const legendExpand = new Expand({
+          view: view,
+          content: new Legend({
+            layerInfos: [
+              {
+                layer: layer,
+                title: "Vientos Colombia",
+              },
+            ],
+            view: view,
+          }),
+          expanded: true,
+        });
+        view.ui.add(legendExpand, "bottom-left");
+        // const controlsExpand = new Expand({
+        //   view: view,
+        //   content: document.getElementById("controls"),
+        //   expandIcon: "sliders-horizontal",
+        //   expanded: true,
+        // });
+        // view.ui.add(controlsExpand, "top-right");
+
+        // const sliderProps = [
+        //   "trailWidth",
+        //   "density",
+        //   "maxPathLength",
+        //   "flowSpeed",
+        //   "trailLength",
+        // ];
+        // sliderProps.forEach((prop) => {
+        //   document
+        //     .getElementById(prop)
+        //     .addEventListener("calciteSliderChange", updateRenderer);
+        // });
+
+        // document
+        //   .getElementById("flowRepresentation")
+        //   .addEventListener("calciteSegmentedControlChange", updateRenderer);
+        // document
+        //   .getElementById("effectsEnabled")
+        //   .addEventListener("calciteCheckboxChange", updateEffect);
+
+        // function updateEffect(event) {
+        //   let checkbox = event.target.checked ? "bloom(1.5, 0.5px, 0)" : null;
+        //   layer.effect = checkbox;
+        // }
+
+        const socket = io("https://geoapps.esri.co", {
+          path: "/cop16sockets/test/socket.io",
+        });
+        socket.on("hello", (arg) => {
+          console.log(arg);
+          if (arg == "1") {
+            document.getElementById("viewDiv").style.width = "70%";
+            document.getElementById("info").style.display = "block";
+            var highlightSymbol = {
+              type: "simple-fill",
+              color: [40, 146, 199, 1], // Color específico
+              outline: {
+                color: [255, 255, 255],
+                width: 1,
+              },
+            };
+
+            // Actualizar el renderer para resaltar el departamento específico
+            var renderer = {
+              type: "unique-value", // Basado en valor único
+              field: "ID", // Campo de departamentos
+              defaultSymbol: new SimpleFillSymbol({
+                color: "rgba(249, 249, 199, .1)",
+                outline: {
+                  color: "white",
+                  width: 1,
+                },
+              }), // Simbología para los demás
+              uniqueValueInfos: [
+                {
+                  value: "05", // Departamento a resaltar
+                  symbol: highlightSymbol,
+                },
+              ],
+            };
+
+            // Asignar el nuevo renderer a la capa
+            departamentosLayer.renderer = renderer;
+
+            departamentosLayer
+              .queryFeatures({
+                where: "ID = '05'",
+                returnGeometry: true,
+                outFields: ["*"],
+              })
+              .then(function (results) {
+                if (results.features.length > 0) {
+                  var departamento = results.features[0];
+                  var geometry = departamento.geometry;
+
+                  // Usar la geometría del departamento para hacer zoom
+                  view.goTo({
+                    target: geometry.extent.expand(1.5), // Hacer zoom con un pequeño margen
+                    duration: 10000, // Duración de la animación
+                    easing: "ease-in-out"
+                  });
+                }
+              });
+          }
+          if (arg == "2") {
+            document.getElementById("viewDiv").style.width = "100%";
+            document.getElementById("info").style.display = "none";
+            var highlightSymbol = {
+              type: "simple-fill",
+              color: [40, 146, 199, 1], // Color específico
+              outline: {
+                color: [255, 255, 255],
+                width: 1,
+              },
+            };
+
+            // Actualizar el renderer para resaltar el departamento específico
+            var renderer = {
+              type: "unique-value", // Basado en valor único
+              field: "ID", // Campo de departamentos
+              defaultSymbol: new SimpleFillSymbol({
+                color: "rgba(249, 249, 199, .1)",
+                outline: {
+                  color: "white",
+                  width: 1,
+                },
+              }), // Simbología para los demás
+              uniqueValueInfos: [
+                {
+                  value: "11", // Departamento a resaltar
+                  symbol: highlightSymbol,
+                },
+              ],
+            };
+
+            // Asignar el nuevo renderer a la capa
+            departamentosLayer.renderer = renderer;
+
+            departamentosLayer
+              .queryFeatures({
+                where: "ID = '11'",
+                returnGeometry: true,
+                outFields: ["*"],
+              })
+              .then(function (results) {
+                if (results.features.length > 0) {
+                  var departamento = results.features[0];
+                  var geometry = departamento.geometry;
+
+                  // Usar la geometría del departamento para hacer zoom
+                  view.goTo({
+                    target: geometry.extent.expand(1.5), // Hacer zoom con un pequeño margen
+                    duration: 10000, // Duración de la animación
+                    easing: "ease-in-out"
+                  });
+                }
+              });
+          }
+        });
+
+        function updateRenderer(event) {
+          let propName = event.target.id;
+          let propValue = event.target.value;
+
+          if (propName && propValue != null) {
+            let tempRenderer = layer.renderer.clone();
+
+            tempRenderer[propName] = propValue;
+            layer.renderer = tempRenderer;
+          }
+        }
+
+        view.on("click", (event) => {
+          const info = `<br> <span> view click event: </span>
+            x: ${event.mapPoint.x.toFixed(2)}
+            y: ${event.mapPoint.y.toFixed(2)}`;
+          console.log(info);
+          view.hitTest(event.screenPoint).then(function (response) {
+            var result = response.results[0];
+            console.log(response);
+          });
+        });
+
+        reactiveUtils.when(
+          () => view.stationary === true,
+          () => {
+            // Get the new center of the view only when view is stationary.
+            // if (view.center) {
+            //   const info = `<br> <span> the view center changed. </span>
+            //   x: ${view.center.x.toFixed(2)}
+            //   y: ${view.center.y.toFixed(2)}`;
+            //   displayMessage(info);
+            // }
+            // Get the new extent of the view only when view is stationary.
+            // if (view.extent) {
+            //   const info = `<br> <span> the view extent changed: </span>
+            //     <br> xmin: ${view.extent.xmin.toFixed(2)}
+            //     xmax: ${view.extent.xmax.toFixed(2)}
+            //     <br> ymin: ${view.extent.ymin.toFixed(2)}
+            //     ymax: ${view.extent.ymax.toFixed(2)}`;
+            //   console.log(info, view.extent);
+            //   // layer.set({
+            //   //   rasterFunction: {
+            //   //     "functionName": 'Clip',
+            //   //     "functionArguments": {
+            //   //       "ClippingGeometry": view.extent.clone().expand(0.5),
+            //   //       "ClippingType": 1
+            //   //     }
+            //   //   }
+            //   // })
+            //   //console.log(view.extent.clone().expand(0.5))
+            // }
+          }
+        );
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div id="info">
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/A2w817H3TP4" title="Canserbero-  Tripolar [Letra]" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <!-- <calcite-card id="controls" class="calcite-mode-dark">
+      <div slot="title">Controls</div>
+      <calcite-label
+        >Ancho de trayectoria
+        <calcite-slider
+          id="trailWidth"
+          min="0.1"
+          max="10"
+          value="2"
+          step="0.1"
+          label-handles
+        ></calcite-slider>
+      </calcite-label>
+      <calcite-label
+        >Longitud de trayectoria
+        <calcite-slider
+          id="trailLength"
+          min="0.1"
+          max="200"
+          value="100"
+          label-handles
+        ></calcite-slider>
+      </calcite-label>
+      <calcite-label
+        >Densidad
+        <calcite-slider
+          id="density"
+          min="0.1"
+          max="1"
+          value="1"
+          step="0.1"
+          label-handles
+        ></calcite-slider>
+      </calcite-label>
+      <calcite-label
+        >Velocidad del viento
+        <calcite-slider
+          id="flowSpeed"
+          min="0.1"
+          max="40"
+          value="10"
+          step="0.1"
+          label-handles
+        ></calcite-slider>
+      </calcite-label>
+      <calcite-label
+        >Longitud máxima del camino
+        <calcite-slider
+          id="maxPathLength"
+          min="0.1"
+          max="300"
+          value="200"
+          label-handles
+        ></calcite-slider>
+      </calcite-label>
+      <calcite-label
+        >Representación del viento
+        <calcite-segmented-control id="flowRepresentation">
+          <calcite-segmented-control-item value="flow-to"
+            >Hacia</calcite-segmented-control-item
+          >
+          <calcite-segmented-control-item value="flow-from" checked
+            >Desde</calcite-segmented-control-item
+          >
+        </calcite-segmented-control>
+      </calcite-label>
+      <calcite-label
+        >Efectos habilitados
+        <calcite-checkbox id="effectsEnabled" checked></calcite-checkbox>
+      </calcite-label>
+    </calcite-card> -->
+
+    <script></script>
+  </body>
+</html>

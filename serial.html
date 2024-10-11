@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lectura de Puerto Serial</title>
+</head>
+<body>
+    <h1>Leer Puerto Serial</h1>
+    <button id="connectButton">Conectar al Puerto Serial</button>
+    <div id="output"></div>
+
+    <script>
+        const connectButton = document.getElementById('connectButton');
+        const outputDiv = document.getElementById('output');
+
+        connectButton.addEventListener('click', async () => {
+            try {
+                // Solicitar acceso al dispositivo serial
+                const port = await navigator.serial.requestPort();
+                
+                // Abrir conexión con una configuración de velocidad
+                await port.open({ baudRate: 9600 });
+
+                const decoder = new TextDecoderStream();
+                const inputDone = port.readable.pipeTo(decoder.writable);
+                const inputStream = decoder.readable;
+                const reader = inputStream.getReader();
+
+                outputDiv.textContent = 'Conectado, esperando datos...';
+
+                // Leer datos del puerto serial
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        outputDiv.textContent = 'Conexión cerrada.';
+                        break;
+                    }
+                    console.log(value)
+                    outputDiv.textContent += value;
+                }
+            } catch (error) {
+                console.error('Error al conectarse al puerto serial: ', error);
+                outputDiv.textContent = 'Error al conectarse al puerto serial.';
+            }
+        });
+    </script>
+</body>
+</html>
