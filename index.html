@@ -5,12 +5,22 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Vientos Colombia</title>
-    <link rel="icon" type="image/png" href="./icon.png" />
+    <title>COP 16</title>
+    <link rel="icon" type="image/png" href="./icon.jpg" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link
       rel="stylesheet"
       href="https://js.arcgis.com/4.28/esri/themes/dark/main.css"
     />
+    <link rel="stylesheet" href="./style.css" />
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://js.arcgis.com/4.28/"></script>
     <script
@@ -24,7 +34,7 @@
     />
 
     <style>
-      body{
+      body {
         display: flex;
       }
       html,
@@ -37,19 +47,30 @@
         transition: width 1s ease;
       }
 
-      #info{
-        width: 30%;
+      #info {
+        width: 40%;
         display: none;
       }
 
-      body{
+      body {
         background-color: #2b2b2b;
       }
 
-      #controls {
+      #overviewDiv {
+        position: absolute;
+        top: 12px;
+        left: 80px;
         width: 300px;
-        max-height: 90vh;
-        overflow: auto;
+        height: 200px;
+        border: 1px solid black;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      #extentDiv {
+        background-color: rgba(0, 0, 0, 0.5);
+        position: absolute;
+        z-index: 2;
       }
     </style>
 
@@ -67,6 +88,7 @@
         "esri/widgets/Search",
         "esri/widgets/Home",
         "esri/core/reactiveUtils",
+        "esri/layers/MapImageLayer",
       ], function (
         esriConfig,
         Map,
@@ -79,432 +101,503 @@
         SimpleRenderer,
         Search,
         Home,
-        reactiveUtils
+        reactiveUtils,
+        MapImageLayer
       ) {
-        esriConfig.apiKey =
-          "AAPK542d70b9ee284701b2ff62918a1b6c4fbfS1Z5hbWY3JUMdCC3W52kT_-vBcaomFbURZAUvCcoXmccrqv_kNTmXzc2UZkOmi";
-        const popupDepartamentos = {
-          title: "Información departamento",
-          content: [
-            {
-              type: "fields",
-              fieldInfos: [
-                {
-                  fieldName: "NAME",
-                  label: "Nombre",
-                },
-                {
-                  fieldName: "Area",
-                  label: "Área (KM<sup>2</sup>)",
-                  format: {
-                    digitSeparator: true, // Uses a comma separator in numbers >999
-                    places: 2, // Sets the number of decimal places to 0 and rounds up
-                  },
-                },
-              ],
-            },
-          ],
-        };
+        let data = null;
+        const titulo = document.getElementById("tituloZona");
+        const descripcion = document.getElementById("descripcionZona");
+        const img1 = document.getElementById("img1Zona");
+        const img2 = document.getElementById("img2Zona");
+        const img3 = document.getElementById("img3Zona");
+        const video = document.getElementById("videoZona");
+        const viewDiv = document.getElementById("viewDiv");
+        const overviewDiv = document.getElementById("overviewDiv");
+        const infoDiv = document.getElementById("info");
+        async function fetchSomeData() {
+          const response = await fetch("data.json");
+          data = await response.json();
+          console.log(data.zona1);
+        }
 
-        const popupVientos = {
-          title: "Información viento",
-          content: [
-            {
-              type: "fields",
-              fieldInfos: [
-                {
-                  fieldName: "Raster.Magnitude",
-                  label: "Velocidad (m/s)",
-                  format: {
-                    digitSeparator: true, // Uses a comma separator in numbers >999
-                    places: 2, // Sets the number of decimal places to 0 and rounds up
-                  },
-                },
-                {
-                  fieldName: "Raster.Direction",
-                  label: "Dirección (°)",
-                  format: {
-                    digitSeparator: true, // Uses a comma separator in numbers >999
-                    places: 2, // Sets the number of decimal places to 0 and rounds up
-                  },
-                },
-              ],
-            },
-          ],
-        };
-        const departamentosLayer = new FeatureLayer({
-          url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/COL_Boundaries_2021/FeatureServer/1",
-          renderer: new SimpleRenderer({
-            symbol: new SimpleFillSymbol({
-              color: "rgba(249, 249, 199, .1)",
-              outline: {
-                color: "white",
-                width: 1,
-              },
-            }),
-          }),
-          opacity: 1,
-          outFields: ["NAME"],
-          //popupTemplate: popupDepartamentos
-        });
-        // console.log(departamentosLayer);
-        const layer = new ImageryLayer({
-          url: "https://geoapps.esri.co/image/rest/services/vientos2006/ImageServer",
-          title: "Vientos Colombia",
-          renderer: {
-            type: "flow", // autocasts to new FlowRenderer
-            trailWidth: "2px",
-            // color: [50, 120, 240, 1],
-            density: 1,
-            visualVariables: [
+        async function init() {
+          await fetchSomeData();
+          esriConfig.apiKey =
+            "AAPK542d70b9ee284701b2ff62918a1b6c4fbfS1Z5hbWY3JUMdCC3W52kT_-vBcaomFbURZAUvCcoXmccrqv_kNTmXzc2UZkOmi";
+          const popupDepartamentos = {
+            title: "Información departamento",
+            content: [
               {
-                type: "color",
-                field: "Velocidad del viento (m/s)",
-                stops: [
-                  { color: [40, 146, 199, 1], value: 0 },
-                  { color: [160, 194, 155, 1], value: 4 },
-                  { color: [218, 230, 119, 1], value: 8 },
+                type: "fields",
+                fieldInfos: [
+                  {
+                    fieldName: "NAME",
+                    label: "Nombre",
+                  },
+                  {
+                    fieldName: "Area",
+                    label: "Área (KM<sup>2</sup>)",
+                    format: {
+                      digitSeparator: true, // Uses a comma separator in numbers >999
+                      places: 2, // Sets the number of decimal places to 0 and rounds up
+                    },
+                  },
                 ],
               },
             ],
-            outFields: ["Raster.Magnitude", "Raster.Direction"],
-          },
-          effect: "bloom(1.5, 0.5px, 0)",
-          opacity: 0.8,
-          popupTemplate: popupVientos,
-        });
-
-        const map = new Map({
-          basemap: "dark-gray-vector",
-          layers: [departamentosLayer],
-        });
-
-        const view = new MapView({
-          container: "viewDiv",
-          map: map,
-          zoom: 5,
-          center: [-73, 4],
-        });
-
-        view.whenLayerView(layer).then((layerView) => {
-          layerView.highlightOptions = {
-            color: "#ffe700",
-            haloOpacity: 0,
-            fillOpacity: 0,
           };
-        });
 
-        let homeWidget = new Home({
-          view: view,
-        });
-        view.ui.add(homeWidget, {
-          position: "top-left",
-        });
+          // const departamentosLayer = new FeatureLayer({
+          //   url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/COL_Boundaries_2021/FeatureServer/1",
+          //   renderer: new SimpleRenderer({
+          //     symbol: new SimpleFillSymbol({
+          //       color: "#736e5b",
+          //       outline: {
+          //         color: "#686351",
+          //         width: 1,
+          //       },
+          //     }),
+          //   }),
+          //   opacity: 1,
+          //   outFields: ["NAME"],
+          //   //popupTemplate: popupDepartamentos
+          // });
 
-        const searchWidget = new Search({
-          view: view,
-        });
-        view.ui.add(searchWidget, {
-          position: "top-left",
-        });
+          const zonasLayer = new FeatureLayer({
+            url: "https://geoapps.esri.co/server/rest/services/Hosted/Zonas_Principales_COP16/FeatureServer",
+            renderer: new SimpleRenderer({
+              symbol: new SimpleFillSymbol({
+                color: "#42b489",
+                outline: {
+                  color: "rgba(0,0,0,1)",
+                  width: 0.1,
+                },
+              }),
+            }),
+            visible: true
+          });
 
-        const legendExpand = new Expand({
-          view: view,
-          content: new Legend({
-            layerInfos: [
+          // const departamentosLayer2 = new FeatureLayer({
+          //   url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/COL_Boundaries_2021/FeatureServer/1",
+          //   renderer: new SimpleRenderer({
+          //     symbol: new SimpleFillSymbol({
+          //       color: "#736e5b",
+          //       outline: {
+          //         color: "#686351",
+          //         width: 1,
+          //       },
+          //     }),
+          //   }),
+          //   opacity: 1,
+          //   outFields: ["NAME"],
+          //   //popupTemplate: popupDepartamentos
+          // });
+
+          const zonasLayer2 = new FeatureLayer({
+            url: "https://geoapps.esri.co/server/rest/services/Hosted/Zonas_Principales_COP16/FeatureServer",
+            renderer: new SimpleRenderer({
+              symbol: new SimpleFillSymbol({
+                color: "#42b489",
+                outline: {
+                  color: "rgba(0,0,0,1)",
+                  width: 0.1,
+                },
+              }),
+            }),
+            opacity: 1,
+          });
+
+          const basemap = new MapImageLayer({
+            url: "https://geoapps.esri.co/server/rest/services/MapaBase/MapServer",
+            sublayers: [
               {
-                layer: layer,
-                title: "Vientos Colombia",
+                id: 18,
+                title: "dem"
+                //renderer: {
+                //ype: "raster-stretch"
+                //}
               },
             ],
+            opacity: 1
+          });
+
+          const basemap2 = new MapImageLayer({
+            url: "https://geoapps.esri.co/server/rest/services/MapaBase/MapServer",
+            sublayers: [
+              {
+                id: 18,
+                title: "dem"
+                //renderer: {
+                //ype: "raster-stretch"
+                //}
+              },
+            ],
+            opacity: 1
+          });
+
+          const map = new Map({
+            basemap: "topo",
+            layers: [basemap, zonasLayer],
+          });
+
+
+          const view = new MapView({
+            container: "viewDiv",
+            map: map,
+            zoom: 5,
+            center: [-73, 4],
+          });
+
+          let homeWidget = new Home({
             view: view,
-          }),
-          expanded: true,
-        });
-        view.ui.add(legendExpand, "bottom-left");
-        // const controlsExpand = new Expand({
-        //   view: view,
-        //   content: document.getElementById("controls"),
-        //   expandIcon: "sliders-horizontal",
-        //   expanded: true,
-        // });
-        // view.ui.add(controlsExpand, "top-right");
+          });
+          view.ui.add(homeWidget, {
+            position: "top-left",
+          });
 
-        // const sliderProps = [
-        //   "trailWidth",
-        //   "density",
-        //   "maxPathLength",
-        //   "flowSpeed",
-        //   "trailLength",
-        // ];
-        // sliderProps.forEach((prop) => {
-        //   document
-        //     .getElementById(prop)
-        //     .addEventListener("calciteSliderChange", updateRenderer);
-        // });
+          const highlightSymbol = {
+            type: "simple-fill",
+            color: "#42b489",
+            outline: {
+              color: "rgba(0,0,0,1)",
+              width: 0.1,
+            },
+          };
 
-        // document
-        //   .getElementById("flowRepresentation")
-        //   .addEventListener("calciteSegmentedControlChange", updateRenderer);
-        // document
-        //   .getElementById("effectsEnabled")
-        //   .addEventListener("calciteCheckboxChange", updateEffect);
+          const defaultSymbol = new SimpleFillSymbol({
+            color: "#42b489",
+            outline: {
+              color: "#686351",
+              width: 1,
+            },
+          });
 
-        // function updateEffect(event) {
-        //   let checkbox = event.target.checked ? "bloom(1.5, 0.5px, 0)" : null;
-        //   layer.effect = checkbox;
-        // }
-
-        const socket = io("https://geoapps.esri.co", {
-          path: "/cop16sockets/test/socket.io",
-        });
-        socket.on("hello", (arg) => {
-          console.log(arg);
-          if (arg == "1") {
-            document.getElementById("viewDiv").style.width = "70%";
-            document.getElementById("info").style.display = "block";
-            var highlightSymbol = {
-              type: "simple-fill",
-              color: [40, 146, 199, 1], // Color específico
-              outline: {
-                color: [255, 255, 255],
-                width: 1,
-              },
-            };
-
-            // Actualizar el renderer para resaltar el departamento específico
-            var renderer = {
-              type: "unique-value", // Basado en valor único
-              field: "ID", // Campo de departamentos
-              defaultSymbol: new SimpleFillSymbol({
-                color: "rgba(249, 249, 199, .1)",
-                outline: {
-                  color: "white",
-                  width: 1,
-                },
-              }), // Simbología para los demás
+          const filterById = (value, zona) => {
+            //zonasLayer.visible = true;
+            viewDiv.style.width = "60%";
+            overviewDiv.style.display = "none";
+            infoDiv.style.display = "flex";
+            let renderer = {
+              type: "unique-value",
+              field: "objectid",
+              defaultSymbol: null,
               uniqueValueInfos: [
                 {
-                  value: "05", // Departamento a resaltar
+                  value: value,
                   symbol: highlightSymbol,
                 },
               ],
             };
 
-            // Asignar el nuevo renderer a la capa
-            departamentosLayer.renderer = renderer;
+            zonasLayer.renderer = renderer;
 
-            departamentosLayer
+            zonasLayer
               .queryFeatures({
-                where: "ID = '05'",
+                where: `objectid = '${value}'`,
                 returnGeometry: true,
                 outFields: ["*"],
               })
               .then(function (results) {
                 if (results.features.length > 0) {
-                  var departamento = results.features[0];
-                  var geometry = departamento.geometry;
+                  let zona = results.features[0];
+                  let geometry = zona.geometry;
 
                   // Usar la geometría del departamento para hacer zoom
                   view.goTo({
                     target: geometry.extent.expand(1.5), // Hacer zoom con un pequeño margen
                     duration: 10000, // Duración de la animación
-                    easing: "ease-in-out"
+                    easing: "ease-in-out",
                   });
                 }
               });
-          }
-          if (arg == "2") {
-            document.getElementById("viewDiv").style.width = "100%";
-            document.getElementById("info").style.display = "none";
-            var highlightSymbol = {
-              type: "simple-fill",
-              color: [40, 146, 199, 1], // Color específico
-              outline: {
-                color: [255, 255, 255],
-                width: 1,
-              },
-            };
+            console.log(zona);
+            zona = "zona" + zona;
+            titulo.innerText = data[zona].titulo;
+            descripcion.innerText = data[zona].descripcion;
+            img1.src = data[zona].img1;
+            img2.src = data[zona].img2;
+            img3.src = data[zona].img3;
+            video.src = data[zona].video;
+          };
 
-            // Actualizar el renderer para resaltar el departamento específico
-            var renderer = {
-              type: "unique-value", // Basado en valor único
-              field: "ID", // Campo de departamentos
-              defaultSymbol: new SimpleFillSymbol({
-                color: "rgba(249, 249, 199, .1)",
+          // Listen for the go() method on the Home widget
+          homeWidget.viewModel.watch("state", function (newState) {
+            if (newState === "going-home") {
+              viewDiv.style.width = "100%";
+              overviewDiv.style.display = "flex";
+              infoDiv.style.display = "none";
+              zonasLayer.renderer = new SimpleRenderer({
+              symbol: new SimpleFillSymbol({
+                color: "#42b489",
                 outline: {
-                  color: "white",
-                  width: 1,
+                  color: "rgba(0,0,0,1)",
+                  width: 0.1,
                 },
-              }), // Simbología para los demás
-              uniqueValueInfos: [
-                {
-                  value: "11", // Departamento a resaltar
-                  symbol: highlightSymbol,
-                },
-              ],
-            };
+              }),
+            });
+            }
+          });
 
-            // Asignar el nuevo renderer a la capa
-            departamentosLayer.renderer = renderer;
+          const socket = io("https://geoapps.esri.co", {
+            path: "/cop16sockets/test/socket.io",
+          });
 
-            departamentosLayer
-              .queryFeatures({
-                where: "ID = '11'",
-                returnGeometry: true,
-                outFields: ["*"],
-              })
-              .then(function (results) {
-                if (results.features.length > 0) {
-                  var departamento = results.features[0];
-                  var geometry = departamento.geometry;
+          document.addEventListener("keydown", function (event) {
+            console.log("Key pressed: " + event.key);
+            console.log("Key code: " + event.code);
+            let arg = event.key;
+            if (arg == "0") {
+              filterById("6", "1");
+            }
+            if (arg == "1") {
+              filterById("3", "2");
+            }
+            if (arg == "2") {
+              filterById("8", "3");
+            }
+            if (arg == "3") {
+              filterById("4", "4");
+            }
+            if (arg == "4") {
+              filterById("10", "5");
+            }
+            if (arg == "5") {
+              filterById("11", "6");
+            }
+            if (arg == "6") {
+              filterById("1", "7");
+            }
+            if (arg == "7") {
+              filterById("7", "8");
+            }
+            if (arg == "8") {
+              filterById("5", "9");
+            }
+            if (arg == "9") {
+              filterById("9", "10");
+            }
+            if (arg == "a") {
+              filterById("2", "11");
+            }
+          });
 
-                  // Usar la geometría del departamento para hacer zoom
-                  view.goTo({
-                    target: geometry.extent.expand(1.5), // Hacer zoom con un pequeño margen
-                    duration: 10000, // Duración de la animación
-                    easing: "ease-in-out"
-                  });
-                }
-              });
+          socket.on("hello", (arg) => {
+            console.log(arg);
+            if (arg == "0") {
+              filterById("6", "1");
+            }
+            if (arg == "1") {
+              filterById("3", "2");
+            }
+            if (arg == "2") {
+              filterById("8", "3");
+            }
+            if (arg == "3") {
+              filterById("4", "4");
+            }
+            if (arg == "4") {
+              filterById("10", "5");
+            }
+            if (arg == "12") {
+              filterById("11", "6");
+            }
+            if (arg == "13") {
+              filterById("1", "7");
+            }
+            if (arg == "14") {
+              filterById("7", "8");
+            }
+            if (arg == "15") {
+              filterById("5", "9");
+            }
+            if (arg == "16") {
+              filterById("9", "10");
+            }
+          });
+
+          function updateRenderer(event) {
+            let propName = event.target.id;
+            let propValue = event.target.value;
+
+            if (propName && propValue != null) {
+              let tempRenderer = layer.renderer.clone();
+
+              tempRenderer[propName] = propValue;
+              layer.renderer = tempRenderer;
+            }
           }
-        });
 
-        function updateRenderer(event) {
-          let propName = event.target.id;
-          let propValue = event.target.value;
+          view.on("click", (event) => {
+            const info = `<br> <span> view click event: </span>
+                    x: ${event.mapPoint.x.toFixed(2)}
+                    y: ${event.mapPoint.y.toFixed(2)}`;
+            console.log(info);
+            view.hitTest(event.screenPoint).then(function (response) {
+              var result = response.results[0];
+              console.log(response);
+            });
+          });
 
-          if (propName && propValue != null) {
-            let tempRenderer = layer.renderer.clone();
+          reactiveUtils.when(
+            () => view.stationary === true,
+            () => {
+              // Get the new center of the view only when view is stationary.
+              // if (view.center) {
+              //   const info = `<br> <span> the view center changed. </span>
+              //   x: ${view.center.x.toFixed(2)}
+              //   y: ${view.center.y.toFixed(2)}`;
+              //   displayMessage(info);
+              // }
+              // Get the new extent of the view only when view is stationary.
+              // if (view.extent) {
+              //   const info = `<br> <span> the view extent changed: </span>
+              //     <br> xmin: ${view.extent.xmin.toFixed(2)}
+              //     xmax: ${view.extent.xmax.toFixed(2)}
+              //     <br> ymin: ${view.extent.ymin.toFixed(2)}
+              //     ymax: ${view.extent.ymax.toFixed(2)}`;
+              //   console.log(info, view.extent);
+              //   // layer.set({
+              //   //   rasterFunction: {
+              //   //     "functionName": 'Clip',
+              //   //     "functionArguments": {
+              //   //       "ClippingGeometry": view.extent.clone().expand(0.5),
+              //   //       "ClippingType": 1
+              //   //     }
+              //   //   }
+              //   // })
+              //   //console.log(view.extent.clone().expand(0.5))
+              // }
+            }
+          );
 
-            tempRenderer[propName] = propValue;
-            layer.renderer = tempRenderer;
-          }
+          const overviewMap = new Map({
+            basemap: "topo",
+            layers: [basemap2, zonasLayer2],
+          });
+
+          const mapView = new MapView({
+            container: "overviewDiv",
+            map: overviewMap,
+            constraints: {
+              rotationEnabled: false,
+            },
+            zoom: 7,
+            center: [-81.7, 12.9],
+          });
+
+          mapView.ui.components = [];
         }
 
-        view.on("click", (event) => {
-          const info = `<br> <span> view click event: </span>
-            x: ${event.mapPoint.x.toFixed(2)}
-            y: ${event.mapPoint.y.toFixed(2)}`;
-          console.log(info);
-          view.hitTest(event.screenPoint).then(function (response) {
-            var result = response.results[0];
-            console.log(response);
-          });
-        });
-
-        reactiveUtils.when(
-          () => view.stationary === true,
-          () => {
-            // Get the new center of the view only when view is stationary.
-            // if (view.center) {
-            //   const info = `<br> <span> the view center changed. </span>
-            //   x: ${view.center.x.toFixed(2)}
-            //   y: ${view.center.y.toFixed(2)}`;
-            //   displayMessage(info);
-            // }
-            // Get the new extent of the view only when view is stationary.
-            // if (view.extent) {
-            //   const info = `<br> <span> the view extent changed: </span>
-            //     <br> xmin: ${view.extent.xmin.toFixed(2)}
-            //     xmax: ${view.extent.xmax.toFixed(2)}
-            //     <br> ymin: ${view.extent.ymin.toFixed(2)}
-            //     ymax: ${view.extent.ymax.toFixed(2)}`;
-            //   console.log(info, view.extent);
-            //   // layer.set({
-            //   //   rasterFunction: {
-            //   //     "functionName": 'Clip',
-            //   //     "functionArguments": {
-            //   //       "ClippingGeometry": view.extent.clone().expand(0.5),
-            //   //       "ClippingType": 1
-            //   //     }
-            //   //   }
-            //   // })
-            //   //console.log(view.extent.clone().expand(0.5))
-            // }
-          }
-        );
+        init();
       });
     </script>
   </head>
 
   <body>
     <div id="viewDiv"></div>
-    <div id="info">
-      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/A2w817H3TP4" title="Canserbero-  Tripolar [Letra]" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    </div>
-    <!-- <calcite-card id="controls" class="calcite-mode-dark">
-      <div slot="title">Controls</div>
-      <calcite-label
-        >Ancho de trayectoria
-        <calcite-slider
-          id="trailWidth"
-          min="0.1"
-          max="10"
-          value="2"
-          step="0.1"
-          label-handles
-        ></calcite-slider>
-      </calcite-label>
-      <calcite-label
-        >Longitud de trayectoria
-        <calcite-slider
-          id="trailLength"
-          min="0.1"
-          max="200"
-          value="100"
-          label-handles
-        ></calcite-slider>
-      </calcite-label>
-      <calcite-label
-        >Densidad
-        <calcite-slider
-          id="density"
-          min="0.1"
-          max="1"
-          value="1"
-          step="0.1"
-          label-handles
-        ></calcite-slider>
-      </calcite-label>
-      <calcite-label
-        >Velocidad del viento
-        <calcite-slider
-          id="flowSpeed"
-          min="0.1"
-          max="40"
-          value="10"
-          step="0.1"
-          label-handles
-        ></calcite-slider>
-      </calcite-label>
-      <calcite-label
-        >Longitud máxima del camino
-        <calcite-slider
-          id="maxPathLength"
-          min="0.1"
-          max="300"
-          value="200"
-          label-handles
-        ></calcite-slider>
-      </calcite-label>
-      <calcite-label
-        >Representación del viento
-        <calcite-segmented-control id="flowRepresentation">
-          <calcite-segmented-control-item value="flow-to"
-            >Hacia</calcite-segmented-control-item
-          >
-          <calcite-segmented-control-item value="flow-from" checked
-            >Desde</calcite-segmented-control-item
-          >
-        </calcite-segmented-control>
-      </calcite-label>
-      <calcite-label
-        >Efectos habilitados
-        <calcite-checkbox id="effectsEnabled" checked></calcite-checkbox>
-      </calcite-label>
-    </calcite-card> -->
+    <div id="overviewDiv"><div id="extentDiv"></div></div>
+    <div id="info" class="container">
+      <h2 class="titulo animar-titulo" id="tituloZona"></h2>
 
-    <script></script>
+      <!-- Descripción -->
+      <p id="descripcionZona"></p>
+
+      <!-- Carrusel de imágenes -->
+      <div
+        id="carouselExampleIndicators"
+        class="carousel slide"
+        data-bs-ride="carousel"
+        style="width: 100%"
+      >
+        <div class="carousel-indicators">
+          <button
+            type="button"
+            data-bs-target="#carouselExampleIndicators"
+            data-bs-slide-to="0"
+            class="active"
+          ></button>
+          <button
+            type="button"
+            data-bs-target="#carouselExampleIndicators"
+            data-bs-slide-to="1"
+          ></button>
+          <button
+            type="button"
+            data-bs-target="#carouselExampleIndicators"
+            data-bs-slide-to="2"
+          ></button>
+        </div>
+        <div class="carousel-inner" style="height: 30vh">
+          <div class="carousel-item active">
+            <img
+              id="img1Zona"
+              src=""
+              class="d-block w-100"
+              style="height: 100%; object-fit: cover"
+              alt="Imagen 1 de Chibiriquete"
+            />
+          </div>
+          <div class="carousel-item">
+            <img
+              id="img2Zona"
+              src=""
+              class="d-block w-100"
+              style="height: 100%; object-fit: cover"
+              alt="Imagen 2 de Chibiriquete"
+            />
+          </div>
+          <div class="carousel-item">
+            <img
+              id="img3Zona"
+              src=""
+              class="d-block w-100"
+              style="height: 100%; object-fit: cover"
+              alt="Imagen 3 de Chibiriquete"
+            />
+          </div>
+        </div>
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#carouselExampleIndicators"
+          data-bs-slide="prev"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#carouselExampleIndicators"
+          data-bs-slide="next"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+
+      <!-- Video -->
+      <div class="video-container">
+        <iframe
+          id="videoZona"
+          width="560"
+          height="315"
+          src=""
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <div class="text-center py-4" id="footer">
+        <img
+          src="./IMG/logo_Esri_CO_blanco.png"
+          alt="Logotipo de Chibiriquete"
+          style="max-width: 150px; height: auto"
+        />
+      </div>
+    </div>
+    <script src="./animacion.js"></script>
   </body>
 </html>
