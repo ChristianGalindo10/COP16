@@ -448,28 +448,30 @@
             //     size: 14,
             //   },
             // },
-            symbol:{
+            symbol: {
               type: "text",
               color: "blue",
-              rotated: false
+              rotated: false,
             },
             labelExpressionInfo: {
-              expression:
-                "$feature.name",
+              expression: "$feature.name",
             },
             //repeatLabel: true,
             //repeatLabelDistance: 500
           };
 
+          const tileLayer = new VectorTileLayer({
+            url: "https://geoapps.esri.co/server/rest/services/Hosted/RIOS/VectorTileServer"
+          })
+
           const riosLayer = new FeatureLayer({
             url: "https://geoapps.esri.co/server/rest/services/Hosted/R%C3%ADos_principales_de_Colombia/FeatureServer/0",
             opacity: 1,
-            labelingInfo: []
+            labelingInfo: [],
           });
           const map = new Map({
             basemap: "topo",
-            //layers: [basemap, municipiosLayer, vectorTileLayer, zonasLayer],
-            layers: [ basemap, municipiosLayer, riosLayer,zonasLayer],
+            layers: [basemap, municipiosLayer, riosLayer, zonasLayer],
           });
 
           const view = new MapView({
@@ -528,6 +530,7 @@
 
           const legend = new Legend({
             view: view,
+            container: 'legend',
             layerInfos: [
               {
                 layer: zonasLayer,
@@ -547,7 +550,7 @@
           });
 
           // Add widget to the bottom right corner of the view
-          view.ui.add(legend, "bottom-left");
+          view.ui.add("legend-container", "bottom-left");
 
           let homeWidget = new Home({
             view: view,
@@ -823,6 +826,38 @@
     <div id="viewDiv"></div>
     <div id="overviewDiv"><div id="extentDiv"></div></div>
     <div id="overviewDiv2"><div id="extentDiv2"></div></div>
+    <div id="legend-container" style="display: flex; align-items: center; flex-direction: column;">
+      
+      <div id="legend"></div>
+      <div
+      class="text-center py-4"
+      style="
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        justify-content: space-evenly;
+        align-items: center;
+        width: 100%;
+        background-color: white;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.2);
+      "
+    >
+      <img
+        src="./IMG/GeoGeeks-Esri-negro.png"
+        alt="Logotipo de Chibiriquete"
+        style="max-width: 10em; height: auto"
+      />
+      <img
+        src="./IMG/alma.png"
+        alt="Logotipo de Chibiriquete"
+        style="max-width: 4em; height: auto"
+      />
+    </div>
+    <label style="background-color: white; width: 100%; text-align: center;
+    font-size: 0.8em;">Desarrollado por GeoGeeks - Esri Colombia</label>
+    </div>
     <div id="info" class="container">
       <h2 class="titulo animar-titulo" id="tituloZona"></h2>
 
@@ -916,13 +951,6 @@
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
         ></iframe>
-      </div>
-      <div class="text-center py-4" id="footer">
-        <img
-          src="./IMG/logo_Esri_CO_blanco.png"
-          alt="Logotipo de Chibiriquete"
-          style="max-width: 150px; height: auto"
-        />
       </div>
     </div>
     <script src="./animacion.js"></script>
