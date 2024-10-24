@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link
       rel="stylesheet"
-      href="https://js.arcgis.com/4.28/esri/themes/dark/main.css"
+      href="https://js.arcgis.com/4.28/esri/themes/light/main.css"
     />
     <link rel="stylesheet" href="./style.css" />
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -45,6 +45,21 @@
         height: 100%;
         width: 100%;
         transition: width 1s ease;
+        overflow: hidden;
+      }
+
+      #fondo {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        transition: opacity 0.5s ease, height 0.5s ease;
+        overflow: hidden;
+        position: absolute;
+        background: linear-gradient(#0007, #0000), #123;
+        z-index: 99;
+        opacity: 0;
+        pointer-events: none;
       }
 
       #info {
@@ -60,17 +75,219 @@
         position: absolute;
         top: 12px;
         left: 80px;
-        width: 300px;
+        width: 150px;
         height: 200px;
         border: 1px solid black;
         z-index: 1;
         overflow: hidden;
       }
 
-      #extentDiv {
+      #extentDiv,
+      #extentDiv2 {
         background-color: rgba(0, 0, 0, 0.5);
         position: absolute;
         z-index: 2;
+      }
+
+      #overviewDiv2 {
+        position: absolute;
+        top: 12px;
+        left: 235px;
+        width: 150px;
+        height: 200px;
+        border: 1px solid black;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      @keyframes firework {
+        0% {
+          transform: translate(var(--x), var(--initialY));
+          width: var(--initialSize);
+          opacity: 1;
+        }
+        50% {
+          width: 0.5vmin;
+          opacity: 1;
+        }
+        100% {
+          width: var(--finalSize);
+          opacity: 0;
+        }
+      }
+
+      /* @keyframes fireworkPseudo {
+  0% { transform: translate(-50%, -50%); width: var(--initialSize); opacity: 1; }
+  50% { width: 0.5vmin; opacity: 1; }
+  100% { width: var(--finalSize); opacity: 0; }
+}
+ */
+      .firework,
+      .firework::before,
+      .firework::after {
+        z-index: 99;
+        --initialSize: 0.5vmin;
+        --finalSize: 150vmin;
+        --particleSize: 0.2vmin;
+        --color1: yellow;
+        --color2: khaki;
+        --color3: white;
+        --color4: lime;
+        --color5: gold;
+        --color6: mediumseagreen;
+        --y: -30vmin;
+        --x: -50%;
+        --initialY: 60vmin;
+        content: "";
+        /*animation: firework 1.5s infinite;*/
+        position: absolute;
+        top: 50%;
+        left: 30%;
+        transform: translate(-50%, var(--y));
+        width: var(--initialSize);
+        aspect-ratio: 1;
+        background: 
+    /*
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 0%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 100% 0%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 100% 100%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 100%,
+    */ radial-gradient(
+              circle,
+              var(--color1) var(--particleSize),
+              #0000 0
+            )
+            50% 0%,
+          radial-gradient(circle, var(--color2) var(--particleSize), #0000 0)
+            100% 50%,
+          radial-gradient(circle, var(--color3) var(--particleSize), #0000 0)
+            50% 100%,
+          radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 0%
+            50%,
+          /* bottom right */
+            radial-gradient(circle, var(--color5) var(--particleSize), #0000 0)
+            80% 90%,
+          radial-gradient(circle, var(--color6) var(--particleSize), #0000 0)
+            95% 90%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            90% 70%,
+          radial-gradient(circle, var(--color2) var(--particleSize), #0000 0)
+            100% 60%,
+          radial-gradient(circle, var(--color3) var(--particleSize), #0000 0)
+            55% 80%,
+          radial-gradient(circle, var(--color4) var(--particleSize), #0000 0)
+            70% 77%,
+          /* bottom left */
+            radial-gradient(circle, var(--color5) var(--particleSize), #0000 0)
+            22% 90%,
+          radial-gradient(circle, var(--color6) var(--particleSize), #0000 0)
+            45% 90%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            33% 70%,
+          radial-gradient(circle, var(--color2) var(--particleSize), #0000 0)
+            10% 60%,
+          radial-gradient(circle, var(--color3) var(--particleSize), #0000 0)
+            31% 80%,
+          radial-gradient(circle, var(--color4) var(--particleSize), #0000 0)
+            28% 77%,
+          radial-gradient(circle, var(--color5) var(--particleSize), #0000 0)
+            13% 72%,
+          /* top left */
+            radial-gradient(circle, var(--color6) var(--particleSize), #0000 0)
+            80% 10%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            95% 14%,
+          radial-gradient(circle, var(--color2) var(--particleSize), #0000 0)
+            90% 23%,
+          radial-gradient(circle, var(--color3) var(--particleSize), #0000 0)
+            100% 43%,
+          radial-gradient(circle, var(--color4) var(--particleSize), #0000 0)
+            85% 27%,
+          radial-gradient(circle, var(--color5) var(--particleSize), #0000 0)
+            77% 37%,
+          radial-gradient(circle, var(--color6) var(--particleSize), #0000 0)
+            60% 7%,
+          /* top right */
+            radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            22% 14%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            45% 20%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            33% 34%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            10% 29%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            31% 37%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            28% 7%,
+          radial-gradient(circle, var(--color1) var(--particleSize), #0000 0)
+            13% 42%;
+        background-size: var(--initialSize) var(--initialSize);
+        background-repeat: no-repeat;
+      }
+
+      .animate .firework,
+      .animate .firework::before,
+      .animate .firework::after {
+        animation: firework 2s infinite;
+      }
+
+      .firework::before {
+        --x: -50%;
+        --y: -50%;
+        --initialY: -50%;
+        /*   transform: translate(-20vmin, -2vmin) rotate(40deg) scale(1.3) rotateY(40deg); */
+        transform: translate(-50%, -50%) rotate(40deg) scale(1.3) rotateY(40deg);
+        /*   animation: fireworkPseudo 2s infinite; */
+      }
+
+      .firework::after {
+        --x: -50%;
+        --y: -50%;
+        --initialY: -50%;
+        /*   transform: translate(44vmin, -50%) rotate(170deg) scale(1.15) rotateY(-30deg); */
+        transform: translate(-50%, -50%) rotate(170deg) scale(1.15)
+          rotateY(-30deg);
+        /*   animation: fireworkPseudo 2s infinite; */
+      }
+
+      .firework:nth-child(2) {
+        --x: 30vmin;
+      }
+
+      .firework:nth-child(2),
+      .firework:nth-child(2)::before,
+      .firework:nth-child(2)::after {
+        --color1: pink;
+        --color2: violet;
+        --color3: fuchsia;
+        --color4: orchid;
+        --color5: plum;
+        --color6: lavender;
+        --finalSize: 150vmin;
+        left: 10%;
+        top: 60%;
+        animation-delay: -0.25s;
+      }
+
+      .firework:nth-child(3) {
+        --x: -30vmin;
+        --y: -50vmin;
+      }
+
+      .firework:nth-child(3),
+      .firework:nth-child(3)::before,
+      .firework:nth-child(3)::after {
+        --color1: cyan;
+        --color2: lightcyan;
+        --color3: lightblue;
+        --color4: PaleTurquoise;
+        --color5: SkyBlue;
+        --color6: lavender;
+        --finalSize: 100vmin;
+        left: 50%;
+        top: 60%;
+        animation-delay: -0.4s;
       }
     </style>
 
@@ -89,6 +306,8 @@
         "esri/widgets/Home",
         "esri/core/reactiveUtils",
         "esri/layers/MapImageLayer",
+        "esri/widgets/Legend",
+        "esri/layers/VectorTileLayer",
       ], function (
         esriConfig,
         Map,
@@ -102,7 +321,9 @@
         Search,
         Home,
         reactiveUtils,
-        MapImageLayer
+        MapImageLayer,
+        Legend,
+        VectorTileLayer
       ) {
         let data = null;
         const titulo = document.getElementById("tituloZona");
@@ -113,7 +334,10 @@
         const video = document.getElementById("videoZona");
         const viewDiv = document.getElementById("viewDiv");
         const overviewDiv = document.getElementById("overviewDiv");
+        const overviewDiv2 = document.getElementById("overviewDiv2");
         const infoDiv = document.getElementById("info");
+        const toggleButton = document.getElementById("toggleButton");
+        const fondo = document.getElementById("fondo");
         async function fetchSomeData() {
           const response = await fetch("data.json");
           data = await response.json();
@@ -124,44 +348,20 @@
           await fetchSomeData();
           esriConfig.apiKey =
             "AAPK542d70b9ee284701b2ff62918a1b6c4fbfS1Z5hbWY3JUMdCC3W52kT_-vBcaomFbURZAUvCcoXmccrqv_kNTmXzc2UZkOmi";
-          const popupDepartamentos = {
-            title: "Información departamento",
-            content: [
-              {
-                type: "fields",
-                fieldInfos: [
-                  {
-                    fieldName: "NAME",
-                    label: "Nombre",
-                  },
-                  {
-                    fieldName: "Area",
-                    label: "Área (KM<sup>2</sup>)",
-                    format: {
-                      digitSeparator: true, // Uses a comma separator in numbers >999
-                      places: 2, // Sets the number of decimal places to 0 and rounds up
-                    },
-                  },
-                ],
-              },
-            ],
-          };
 
-          // const departamentosLayer = new FeatureLayer({
-          //   url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/COL_Boundaries_2021/FeatureServer/1",
-          //   renderer: new SimpleRenderer({
-          //     symbol: new SimpleFillSymbol({
-          //       color: "#736e5b",
-          //       outline: {
-          //         color: "#686351",
-          //         width: 1,
-          //       },
-          //     }),
-          //   }),
-          //   opacity: 1,
-          //   outFields: ["NAME"],
-          //   //popupTemplate: popupDepartamentos
-          // });
+          const municipiosLayer = new FeatureLayer({
+            url: "https://geoapps.esri.co/server/rest/services/Hosted/Municipios_de_Colombia/FeatureServer/12",
+            renderer: new SimpleRenderer({
+              symbol: new SimpleFillSymbol({
+                color: "rgba(0,0,0,0)",
+                outline: {
+                  color: "#686351",
+                  width: 1,
+                },
+              }),
+            }),
+            opacity: 0.5,
+          });
 
           const zonasLayer = new FeatureLayer({
             url: "https://geoapps.esri.co/server/rest/services/Hosted/Zonas_Principales_COP16/FeatureServer",
@@ -174,7 +374,7 @@
                 },
               }),
             }),
-            visible: true
+            visible: true,
           });
 
           // const departamentosLayer2 = new FeatureLayer({
@@ -212,13 +412,13 @@
             sublayers: [
               {
                 id: 18,
-                title: "dem"
+                title: "dem",
                 //renderer: {
                 //ype: "raster-stretch"
                 //}
               },
             ],
-            opacity: 1
+            opacity: 1,
           });
 
           const basemap2 = new MapImageLayer({
@@ -226,27 +426,128 @@
             sublayers: [
               {
                 id: 18,
-                title: "dem"
+                title: "dem",
                 //renderer: {
                 //ype: "raster-stretch"
                 //}
               },
             ],
-            opacity: 1
+            opacity: 1,
           });
 
+          const labelClass = {
+            // autocasts as new LabelClass()
+            // symbol: {
+            //   type: "text", // autocasts as new TextSymbol()
+            //   color: "white",
+            //   haloColor: "blue",
+            //   haloSize: 1,
+            //   font: {
+            //     // autocast as new Font()
+            //     family: "Noto Sans",
+            //     size: 14,
+            //   },
+            // },
+            symbol:{
+              type: "text",
+              color: "blue",
+              rotated: false
+            },
+            labelExpressionInfo: {
+              expression:
+                "$feature.name",
+            },
+            //repeatLabel: true,
+            //repeatLabelDistance: 500
+          };
+
+          const riosLayer = new FeatureLayer({
+            url: "https://geoapps.esri.co/server/rest/services/Hosted/R%C3%ADos_principales_de_Colombia/FeatureServer/0",
+            opacity: 1,
+            labelingInfo: []
+          });
           const map = new Map({
             basemap: "topo",
-            layers: [basemap, zonasLayer],
+            //layers: [basemap, municipiosLayer, vectorTileLayer, zonasLayer],
+            layers: [ basemap, municipiosLayer, riosLayer,zonasLayer],
           });
-
 
           const view = new MapView({
             container: "viewDiv",
             map: map,
-            zoom: 5,
+            zoom: 6,
             center: [-73, 4],
           });
+
+          view.constraints = {
+            lods: [
+              { level: 0, resolution: 156543.033928, scale: 591657527.591555 },
+              {
+                level: 1,
+                resolution: 78271.5169639999,
+                scale: 295828763.795777,
+              },
+              {
+                level: 2,
+                resolution: 39135.7584820001,
+                scale: 147914381.897889,
+              },
+              {
+                level: 3,
+                resolution: 19567.8792409999,
+                scale: 73957190.948944,
+              },
+              {
+                level: 4,
+                resolution: 9783.93962049996,
+                scale: 36978595.474472,
+              },
+              {
+                level: 5,
+                resolution: 4891.96981024998,
+                scale: 18489297.737236,
+              },
+              { level: 6, resolution: 2445.98490512499, scale: 9944648.868618 },
+              { level: 7, resolution: 1222.99245256249, scale: 4622324.434309 },
+              { level: 8, resolution: 611.49622628138, scale: 2311162.217155 },
+              { level: 9, resolution: 305.748113140558, scale: 1155581.108577 },
+              { level: 10, resolution: 152.874056570411, scale: 577790.554289 },
+              { level: 11, resolution: 76.4370282850732, scale: 288895.277144 },
+              { level: 12, resolution: 38.2185141425366, scale: 144447.638572 },
+              { level: 13, resolution: 19.1092570712683, scale: 72223.819286 },
+              { level: 14, resolution: 9.55462853563415, scale: 36111.909643 },
+              { level: 15, resolution: 4.77731426794937, scale: 18055.954822 },
+              { level: 16, resolution: 2.38865713397468, scale: 9027.977411 },
+              { level: 17, resolution: 1.19432856685505, scale: 4513.988705 },
+              { level: 18, resolution: 0.597164283559817, scale: 2256.994353 },
+              { level: 19, resolution: 0.298582141647617, scale: 1128.497176 },
+              { level: 20, resolution: 0.149291070823808, scale: 564.248588 },
+              { level: 21, resolution: 0.074645535411904, scale: 282.124294 },
+            ],
+          };
+
+          const legend = new Legend({
+            view: view,
+            layerInfos: [
+              {
+                layer: zonasLayer,
+                title: "Áreas de interés ambiental",
+                legendElements: [],
+              },
+              {
+                layer: riosLayer,
+                title: "Ríos principales",
+              },
+              ,
+              {
+                layer: municipiosLayer,
+                title: "Municipios de Colombia",
+              },
+            ],
+          });
+
+          // Add widget to the bottom right corner of the view
+          view.ui.add(legend, "bottom-left");
 
           let homeWidget = new Home({
             view: view,
@@ -273,23 +574,12 @@
           });
 
           const filterById = (value, zona) => {
-            //zonasLayer.visible = true;
+            fondo.style.opacity = 0.8;
+            fondo.classList.add("animate");
             viewDiv.style.width = "60%";
             overviewDiv.style.display = "none";
+            overviewDiv2.style.display = "none";
             infoDiv.style.display = "flex";
-            let renderer = {
-              type: "unique-value",
-              field: "objectid",
-              defaultSymbol: null,
-              uniqueValueInfos: [
-                {
-                  value: value,
-                  symbol: highlightSymbol,
-                },
-              ],
-            };
-
-            zonasLayer.renderer = renderer;
 
             zonasLayer
               .queryFeatures({
@@ -297,10 +587,25 @@
                 returnGeometry: true,
                 outFields: ["*"],
               })
-              .then(function (results) {
+              .then(async function (results) {
                 if (results.features.length > 0) {
                   let zona = results.features[0];
                   let geometry = zona.geometry;
+
+                  let renderer = {
+                    type: "unique-value",
+                    field: "objectid",
+                    defaultSymbol: null,
+                    uniqueValueInfos: [
+                      {
+                        value: value,
+                        symbol: highlightSymbol,
+                        label: `${zona.attributes.zona_cop}`,
+                      },
+                    ],
+                  };
+
+                  zonasLayer.renderer = renderer;
 
                   // Usar la geometría del departamento para hacer zoom
                   view.goTo({
@@ -309,8 +614,12 @@
                     easing: "ease-in-out",
                   });
                 }
+
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                fondo.style.opacity = "0";
+                fondo.classList.remove("animate");
               });
-            console.log(zona);
+
             zona = "zona" + zona;
             titulo.innerText = data[zona].titulo;
             descripcion.innerText = data[zona].descripcion;
@@ -325,16 +634,17 @@
             if (newState === "going-home") {
               viewDiv.style.width = "100%";
               overviewDiv.style.display = "flex";
+              overviewDiv2.style.display = "flex";
               infoDiv.style.display = "none";
               zonasLayer.renderer = new SimpleRenderer({
-              symbol: new SimpleFillSymbol({
-                color: "#42b489",
-                outline: {
-                  color: "rgba(0,0,0,1)",
-                  width: 0.1,
-                },
-              }),
-            });
+                symbol: new SimpleFillSymbol({
+                  color: "#42b489",
+                  outline: {
+                    color: "rgba(0,0,0,1)",
+                    width: 0.1,
+                  },
+                }),
+              });
             }
           });
 
@@ -481,11 +791,22 @@
             constraints: {
               rotationEnabled: false,
             },
-            zoom: 7,
-            center: [-81.7, 12.9],
+            zoom: 11,
+            center: [-81.72, 12.54],
+          });
+
+          const mapView2 = new MapView({
+            container: "overviewDiv2",
+            map: overviewMap,
+            constraints: {
+              rotationEnabled: false,
+            },
+            zoom: 11,
+            center: [-81.37, 13.35],
           });
 
           mapView.ui.components = [];
+          mapView2.ui.components = [];
         }
 
         init();
@@ -494,8 +815,14 @@
   </head>
 
   <body>
+    <div id="fondo">
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <div class="firework"></div>
+    </div>
     <div id="viewDiv"></div>
     <div id="overviewDiv"><div id="extentDiv"></div></div>
+    <div id="overviewDiv2"><div id="extentDiv2"></div></div>
     <div id="info" class="container">
       <h2 class="titulo animar-titulo" id="tituloZona"></h2>
 

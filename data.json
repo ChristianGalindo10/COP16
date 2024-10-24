@@ -1,83 +1,83 @@
 {
-    "zona1": {
-      "titulo": "Islas de malpelo gorgona",
-      "descripcion": "Las Islas Malpelo y Gorgona, en el Pacífico colombiano, destacan por su biodiversidad.",
-      "img1": "./IMG/Gorgona.jpg",
-      "img2": "./IMG/IslaGorgona.jpg",
-      "img3": "./IMG/Malpelo&Gorgona.jpeg",
-      "video": "https://www.youtube.com/embed/-12L3D8MzA0?autoplay=1&mute=1&loop=1&playlist=-12L3D8MzA0"
-    },
-    "zona2": {
-      "titulo": "Chibiriquete - Lindosa",
-      "descripcion": "Chibiriquete es un parque natural en la región amazónica de Colombia, reconocido por su biodiversidad y pinturas rupestres ancestrales.",
-      "img1": "./IMG/ArteRupestre.png",
-      "img2": "./IMG/SerraniaDelChibiriquete.jpg",
-      "img3": "./IMG/Parque_Nacional.jpg",
-      "video": "https://www.youtube.com/embed/urnb0beAUZE?autoplay=1&mute=1&loop=1"
-    },
-    "zona3": {
-      "titulo": "Pacífico sur continental",
-      "descripcion": "El Pacífico Sur Continental es la zona del océano Pacífico que rodea las costas de Chile y Perú, caracterizada por su biodiversidad marina y actividades pesqueras.",
-      "img1": "./IMG/PacificoSur1.jpeg",
-      "img2": "./IMG/PacificoSur2.jpeg",
-      "img3": "./IMG/PacificoSur3.jpeg",
-      "video": "https://www.youtube.com/embed/yFaah3eHGn8?autoplay=1&mute=1&loop=1"
-    },
-    "zona4": {
-      "titulo": "Pacífico norte - Chocó Darién",
-      "descripcion": "El Pacífico Norte - Chocó Darién es una región costera entre Colombia y Panamá, caracterizada por su selva tropical, biodiversidad y comunidades afrodescendientes.",
-      "img1": "./IMG/PacificoNorte1.jpeg",
-      "img2": "./IMG/PacificoNorte2.jpeg",
-      "img3": "./IMG/PacificoNorte3.jpeg",
-      "video": "https://www.youtube.com/embed/dm95UBBF-fQ?autoplay=1&mute=1&loop=1"
-    },
-    "zona5": {
-      "titulo": "San Andrés y Providencia",
-      "descripcion": "San Andrés y Providencia son islas colombianas en el Caribe, famosas por sus playas de arena blanca y aguas turquesas.",
-      "img1": "./IMG/SanAndres1.jpg",
-      "img2": "./IMG/SanAndres2.jpeg",
-      "img3": "./IMG/SanAndres3.jpg",
-      "video": "https://www.youtube.com/embed/lsUE-eI3cY0?autoplay=1&mute=1&loop=1"
-    },
-    
-    "zona6": {
-      "titulo": "Andes centrales - cordillera central (serranía de San Lucas)",
-      "descripcion": "La Serranía de San Lucas, parte de la Cordillera Central de los Andes en Colombia, es una región biodiversa y rica en minerales, ubicada entre los departamentos de Bolívar, Antioquia y Cesar.",
-      "img1": "./IMG/andes03.jpg",
-      "img2": "./IMG/Cordillera-Central-de-Colombia.jpg",
-      "img3": "./IMG/cordillera-de-los-andes.jpg",
-      "video": "https://www.youtube.com/embed/-12L3D8MzA0?autoplay=1&mute=1&loop=1"
-    },
-    "zona7": {
-      "titulo": "Altillanura de la región de la Orinoquía",
-      "descripcion": "La Altillanura de la Orinoquía es una llanura elevada en Colombia, conocida por su fertilidad y su importancia agroindustrial.",
-      "img1": "./IMG/LLanuras4.jpg",
-      "img2": "./IMG/altillanuraorinocense-large.jpg",
-      "img3": "./IMG/llanura.jpg",
-      "video": "https://www.youtube.com/embed/A-nhr4uW9P0?autoplay=1&mute=1&loop=1"
-    },
-    "zona8": {
-      "titulo": "Mojana - Depresión Momposina",
-      "descripcion": "La Mojana o Depresión Momposina es una región húmeda en Colombia, rica en biodiversidad, pero vulnerable a inundaciones y sequías.",
-      "img1": "./IMG/Mojana1.jpg",
-      "img2": "./IMG/Mojana2.jpg",
-      "img3": "./IMG/Mojana3.jpg",
-      "video": "https://www.youtube.com/embed/BXBFfdtKmso?autoplay=1&mute=1&loop=1"
-    },
-    "zona9": {
-      "titulo": "Estrella fluvial de Inírida",
-      "descripcion": "La Estrella Fluvial de Inírida es la unión de varios ríos en Guainía, Colombia, formando un ecosistema único y biodiverso.",
-      "img1": "./IMG/cerro1.jpg",
-      "img2": "./IMG/cerro2.jpg",
-      "img3": "./IMG/cerro3.jpg",
-      "video": "https://www.youtube.com/embed/PQ7pVeQcGKI?autoplay=1&mute=1&loop=1"
-    },
-    "zona10": {
-      "titulo": "Serrania Nudo de paramillo",
-      "descripcion": "La Serranía del Nudo de Paramillo es una cadena montañosa ubicada en el noroeste de Colombia, entre los departamentos de Antioquia y Córdoba.",
-      "img1": "./IMG/jaramillo1.jpg",
-      "img2": "./IMG/jaramillo2.jpg",
-      "img3": "./IMG/jaramillo3.jpg",
-      "video": "https://www.youtube.com/embed/fEB0Pi1HNAE?autoplay=1&mute=1&loop=1"
-    }
+  "zona1": {
+    "titulo": "Islas de Malpelo y Gorgona",
+    "descripcion": "Las Islas Malpelo y Gorgona, en el Pacífico colombiano, destacan por su biodiversidad.",
+    "img1": "./IMG/Gorgona.jpg",
+    "img2": "./IMG/IslaGorgona.jpg",
+    "img3": "./IMG/Malpelo&Gorgona.jpeg",
+    "video": "https://www.youtube.com/embed/-12L3D8MzA0?autoplay=1&mute=1&loop=1&playlist=-12L3D8MzA0"
+  },
+  "zona2": {
+    "titulo": "Chiribiquete - Lindosa",
+    "descripcion": "Chiribiquete es un parque natural en la región amazónica de Colombia, reconocido por su biodiversidad y pinturas rupestres ancestrales.",
+    "img1": "./IMG/ArteRupestre.png",
+    "img2": "./IMG/SerraniaDelChibiriquete.jpg",
+    "img3": "./IMG/Parque_Nacional.jpg",
+    "video": "https://www.youtube.com/embed/urnb0beAUZE?autoplay=1&mute=1&loop=1"
+  },
+  "zona3": {
+    "titulo": "Pacífico Sur Continental",
+    "descripcion": "El Pacífico Sur Continental es la zona del océano Pacífico que rodea las costas de Chile y Perú, caracterizada por su biodiversidad marina y actividades pesqueras.",
+    "img1": "./IMG/PacificoSur1.jpeg",
+    "img2": "./IMG/PacificoSur2.jpeg",
+    "img3": "./IMG/PacificoSur3.jpeg",
+    "video": "https://www.youtube.com/embed/yFaah3eHGn8?autoplay=1&mute=1&loop=1"
+  },
+  "zona4": {
+    "titulo": "Pacífico Norte - Chocó Darién",
+    "descripcion": "El Pacífico Norte - Chocó Darién es una región costera entre Colombia y Panamá, caracterizada por su selva tropical, biodiversidad y comunidades afrodescendientes.",
+    "img1": "./IMG/PacificoNorte1.jpeg",
+    "img2": "./IMG/PacificoNorte2.jpeg",
+    "img3": "./IMG/PacificoNorte3.jpeg",
+    "video": "https://www.youtube.com/embed/dm95UBBF-fQ?autoplay=1&mute=1&loop=1"
+  },
+  "zona5": {
+    "titulo": "San Andrés y Providencia",
+    "descripcion": "San Andrés y Providencia son islas colombianas en el Caribe, famosas por sus playas de arena blanca y aguas turquesas.",
+    "img1": "./IMG/SanAndres1.jpg",
+    "img2": "./IMG/SanAndres2.jpeg",
+    "img3": "./IMG/SanAndres3.jpg",
+    "video": "https://www.youtube.com/embed/lsUE-eI3cY0?autoplay=1&mute=1&loop=1"
+  },
+
+  "zona6": {
+    "titulo": "Andes Centrales - Cordillera Central (Serranía de San Lucas)",
+    "descripcion": "La Serranía de San Lucas, parte de la Cordillera Central de los Andes en Colombia, es una región biodiversa y rica en minerales, ubicada entre los departamentos de Bolívar, Antioquia y Cesar.",
+    "img1": "./IMG/andes03.jpg",
+    "img2": "./IMG/Cordillera-Central-de-Colombia.jpg",
+    "img3": "./IMG/cordillera-de-los-andes.jpg",
+    "video": "https://www.youtube.com/embed/-12L3D8MzA0?autoplay=1&mute=1&loop=1"
+  },
+  "zona7": {
+    "titulo": "Altillanura de la región de la Orinoquía",
+    "descripcion": "La Altillanura de la Orinoquía es una llanura elevada en Colombia, conocida por su fertilidad y su importancia agroindustrial.",
+    "img1": "./IMG/LLanuras4.jpg",
+    "img2": "./IMG/altillanuraorinocense-large.jpg",
+    "img3": "./IMG/llanura.jpg",
+    "video": "https://www.youtube.com/embed/A-nhr4uW9P0?autoplay=1&mute=1&loop=1"
+  },
+  "zona8": {
+    "titulo": "Mojana - Depresión Momposina",
+    "descripcion": "La Mojana o Depresión Momposina es una región húmeda en Colombia, rica en biodiversidad, pero vulnerable a inundaciones y sequías.",
+    "img1": "./IMG/Mojana1.jpg",
+    "img2": "./IMG/Mojana2.jpg",
+    "img3": "./IMG/Mojana3.jpg",
+    "video": "https://www.youtube.com/embed/BXBFfdtKmso?autoplay=1&mute=1&loop=1"
+  },
+  "zona9": {
+    "titulo": "Estrella Fluvial de Inírida",
+    "descripcion": "La Estrella Fluvial de Inírida es la unión de varios ríos en Guainía, Colombia, formando un ecosistema único y biodiverso.",
+    "img1": "./IMG/cerro1.jpg",
+    "img2": "./IMG/cerro2.jpg",
+    "img3": "./IMG/cerro3.jpg",
+    "video": "https://www.youtube.com/embed/PQ7pVeQcGKI?autoplay=1&mute=1&loop=1"
+  },
+  "zona10": {
+    "titulo": "Serranía Nudo de Paramillo",
+    "descripcion": "La Serranía del Nudo de Paramillo es una cadena montañosa ubicada en el noroeste de Colombia, entre los departamentos de Antioquia y Córdoba.",
+    "img1": "./IMG/jaramillo1.jpg",
+    "img2": "./IMG/jaramillo2.jpg",
+    "img3": "./IMG/jaramillo3.jpg",
+    "video": "https://www.youtube.com/embed/fEB0Pi1HNAE?autoplay=1&mute=1&loop=1"
   }
+}
